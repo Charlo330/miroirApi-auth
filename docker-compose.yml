@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  authmysql:
+    container_name: authmysql
+    image: mysql
+    ports:
+      - ":33006"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=authDb
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "mysql", "-u", "root", "-proot"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  authapi:
+    container_name: authapi
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ":9888"
+    volumes:
+      - .:/opt/app/api
+    depends_on:
+      authmysql:
+        condition: service_healthy
+
